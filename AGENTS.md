@@ -6,7 +6,8 @@ Agents working on this project **must**:
   `./.agents/rules`
 
 - Look for available **agent skills** in the directory:  
-  `./.agents/skills`
+  `./.agents/skills`  
+  _(community skills installed with `npx skills add`; internal skills live in `./.skills` and are symlinked here)_
 
 - Look for the **project memory bank** in:  
   `./memory-bank`  

@@ -3,7 +3,7 @@ from __future__ import annotations
 import random
 from collections import defaultdict
 from datetime import date, timedelta
-from typing import Literal
+from typing import Annotated, Literal
 
 from fastapi import APIRouter, Query
 from pydantic import BaseModel
@@ -240,17 +240,35 @@ def detect_outcome_alerts(
     return alerts
 
 
+# Reusable query parameter declarations (fastapi skill: "Use `Annotated`").
+StartDateQuery = Annotated[date | None, Query()]
+EndDateQuery = Annotated[date | None, Query()]
+CategoryQuery = Annotated[Category | None, Query()]
+OperationTypeQuery = Annotated[OperationType | None, Query()]
+BusinessTypeQuery = Annotated[BusinessType | None, Query()]
+GroupByQuery = Annotated[GroupBy, Query()]
+
+
+def filter_by_business_type(
+    movements: list[FinancialMovement],
+    business_type: BusinessType | None,
+) -> list[FinancialMovement]:
+    if business_type is None:
+        return movements
+    return [item for item in movements if item.business_type == business_type]
+
+
 @router.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
 
 
-@router.get("/api/metrics", response_model=list[FinancialMovement])
+@router.get("/api/metrics")
 def get_metrics(
-    start_date: date | None = Query(default=None),
-    end_date: date | None = Query(default=None),
-    category: Category | None = Query(default=None),
-    operation_type: OperationType | None = Query(default=None),
+    start_date: StartDateQuery = None,
+    end_date: EndDateQuery = None,
+    category: CategoryQuery = None,
+    operation_type: OperationTypeQuery = None,
 ) -> list[FinancialMovement]:
     movements = generate_mock_movements(seed=42)
     filtered = filter_movements(
@@ -259,59 +277,53 @@ def get_metrics(
     return ensure_chronological_order(filtered)
 
 
-@router.get("/api/metrics/facets", response_model=MetricsFacets)
+@router.get("/api/metrics/facets")
 def get_metrics_facets() -> MetricsFacets:
     movements = generate_mock_movements(seed=42)
     return build_metrics_facets(movements)
 
 
-@router.get("/api/metrics/summary", response_model=list[MetricsSummaryItem])
+@router.get("/api/metrics/summary")
 def get_metrics_summary(
-    group_by: GroupBy = Query(default="month"),
-    start_date: date | None = Query(default=None),
-    end_date: date | None = Query(default=None),
-    category: Category | None = Query(default=None),
-    operation_type: OperationType | None = Query(default=None),
-    business_type: BusinessType | None = Query(default=None),
+    group_by: GroupByQuery = "month",
+    start_date: StartDateQuery = None,
+    end_date: EndDateQuery = None,
+    category: CategoryQuery = None,
+    operation_type: OperationTypeQuery = None,
+    business_type: BusinessTypeQuery = None,
 ) -> list[MetricsSummaryItem]:
-    movements = generate_mock_movements(seed=42)
-    if business_type is not None:
-        movements = [
-            item for item in movements if item.business_type == business_type]
+    movements = filter_by_business_type(
+        generate_mock_movements(seed=42), business_type)
     filtered = filter_movements(
         movements, start_date, end_date, category, operation_type
     )
     return summarize_movements(filtered, group_by)
 
 
-@router.get("/api/metrics/categories/top", response_model=list[TopCategoryItem])
+@router.get("/api/metrics/categories/top")
 def get_top_categories(
-    operation_type: OperationType = Query(default="outcome"),
-    limit: int = Query(default=5, ge=1, le=20),
-    start_date: date | None = Query(default=None),
-    end_date: date | None = Query(default=None),
-    business_type: BusinessType | None = Query(default=None),
+    operation_type: Annotated[OperationType, Query()] = "outcome",
+    limit: Annotated[int, Query(ge=1, le=20)] = 5,
+    start_date: StartDateQuery = None,
+    end_date: EndDateQuery = None,
+    business_type: BusinessTypeQuery = None,
 ) -> list[TopCategoryItem]:
-    movements = generate_mock_movements(seed=42)
-    if business_type is not None:
-        movements = [
-            item for item in movements if item.business_type == business_type]
+    movements = filter_by_business_type(
+        generate_mock_movements(seed=42), business_type)
     filtered = filter_movements(
         movements, start_date, end_date, category=None, operation_type=operation_type
     )
     return build_top_categories(filtered, operation_type, limit)
 
 
-@router.get("/api/metrics/comparison", response_model=MetricsComparison)
+@router.get("/api/metrics/comparison")
 def get_metrics_comparison(
-    start_date: date = Query(...),
-    end_date: date = Query(...),
-    business_type: BusinessType | None = Query(default=None),
+    start_date: Annotated[date, Query()],
+    end_date: Annotated[date, Query()],
+    business_type: BusinessTypeQuery = None,
 ) -> MetricsComparison:
-    movements = generate_mock_movements(seed=42)
-    if business_type is not None:
-        movements = [
-            item for item in movements if item.business_type == business_type]
+    movements = filter_by_business_type(
+        generate_mock_movements(seed=42), business_type)
 
     current_movements = filter_movements(
         movements, start_date, end_date, category=None, operation_type=None
@@ -339,18 +351,16 @@ def get_metrics_comparison(
     )
 
 
-@router.get("/api/metrics/alerts", response_model=list[MetricsAlert])
+@router.get("/api/metrics/alerts")
 def get_metrics_alerts(
-    threshold: float = Query(default=0.3, ge=0),
-    group_by: GroupBy = Query(default="month"),
-    start_date: date | None = Query(default=None),
-    end_date: date | None = Query(default=None),
-    business_type: BusinessType | None = Query(default=None),
+    threshold: Annotated[float, Query(ge=0)] = 0.3,
+    group_by: GroupByQuery = "month",
+    start_date: StartDateQuery = None,
+    end_date: EndDateQuery = None,
+    business_type: BusinessTypeQuery = None,
 ) -> list[MetricsAlert]:
-    movements = generate_mock_movements(seed=42)
-    if business_type is not None:
-        movements = [
-            item for item in movements if item.business_type == business_type]
+    movements = filter_by_business_type(
+        generate_mock_movements(seed=42), business_type)
 
     filtered = filter_movements(
         movements, start_date, end_date, category=None, operation_type=None
@@ -359,32 +369,28 @@ def get_metrics_alerts(
     return detect_outcome_alerts(summary, threshold)
 
 
-@router.get("/api/metrics/b2b", response_model=list[FinancialMovement])
+@router.get("/api/metrics/b2b")
 def get_b2b_metrics(
-    start_date: date | None = Query(default=None),
-    end_date: date | None = Query(default=None),
-    category: Category | None = Query(default=None),
-    operation_type: OperationType | None = Query(default=None),
+    start_date: StartDateQuery = None,
+    end_date: EndDateQuery = None,
+    category: CategoryQuery = None,
+    operation_type: OperationTypeQuery = None,
 ) -> list[FinancialMovement]:
-    movements = [
-        movement for movement in generate_mock_movements(seed=42) if movement.business_type == "B2B"
-    ]
+    movements = filter_by_business_type(generate_mock_movements(seed=42), "B2B")
     filtered = filter_movements(
         movements, start_date, end_date, category, operation_type
     )
     return ensure_chronological_order(filtered)
 
 
-@router.get("/api/metrics/b2c", response_model=list[FinancialMovement])
+@router.get("/api/metrics/b2c")
 def get_b2c_metrics(
-    start_date: date | None = Query(default=None),
-    end_date: date | None = Query(default=None),
-    category: Category | None = Query(default=None),
-    operation_type: OperationType | None = Query(default=None),
+    start_date: StartDateQuery = None,
+    end_date: EndDateQuery = None,
+    category: CategoryQuery = None,
+    operation_type: OperationTypeQuery = None,
 ) -> list[FinancialMovement]:
-    movements = [
-        movement for movement in generate_mock_movements(seed=42) if movement.business_type == "B2C"
-    ]
+    movements = filter_by_business_type(generate_mock_movements(seed=42), "B2C")
     filtered = filter_movements(
         movements, start_date, end_date, category, operation_type
     )

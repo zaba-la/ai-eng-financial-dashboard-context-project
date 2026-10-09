@@ -5,6 +5,7 @@ import {
   computeMonthlyData,
   formatCurrency,
   formatPercent,
+  formatPeriodLabel,
 } from "./financial-utils";
 import type { FinancialMovement } from "./financial-types";
 
@@ -100,6 +101,60 @@ describe("computeMonthlyData", () => {
       outcome: 0,
       profitPercent: 100,
     });
+  });
+
+  it("keeps movements on the 1st of the month in that month in any timezone", () => {
+    const firstOfMonthMovements: FinancialMovement[] = [
+      {
+        create_date: "2026-01-01",
+        amount: 400,
+        operation_type: "income",
+        category: "sales",
+        business_type: "B2B",
+      },
+      {
+        create_date: "2025-12-01",
+        amount: 100,
+        operation_type: "outcome",
+        category: "suppliers",
+        business_type: "B2C",
+      },
+    ];
+
+    const monthlyData = computeMonthlyData(firstOfMonthMovements);
+
+    expect(monthlyData.map((point) => point.month)).toEqual([
+      "Dec 2025",
+      "Jan 2026",
+    ]);
+    expect(monthlyData[1].income).toBe(400);
+  });
+});
+
+describe("formatPeriodLabel", () => {
+  it("spans the first and last month of the data", () => {
+    const points = computeMonthlyData([
+      ...sampleMovements,
+      {
+        create_date: "2025-03-20",
+        amount: 10,
+        operation_type: "income",
+        category: "others",
+        business_type: "B2C",
+      },
+    ]);
+
+    expect(formatPeriodLabel(points)).toBe("Jan 2024 – Mar 2025");
+  });
+
+  it("uses a single month when all data falls in one month", () => {
+    expect(formatPeriodLabel(computeMonthlyData(sampleMovements.slice(0, 2)))).toBe(
+      "Jan 2024",
+    );
+  });
+
+  it("falls back to a generic label without data", () => {
+    expect(formatPeriodLabel([])).toBe("Last 12 months");
   });
 });
 

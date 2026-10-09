@@ -3,7 +3,11 @@ import { DashboardHeader } from "@/components/dashboard/dashboard-header";
 import { KPIRow } from "@/components/dashboard/kpi-row";
 import { ChartCardSkeleton } from "@/components/dashboard/chart-card-skeleton";
 import { type FinancialMovement } from "@/lib/financial-types";
-import { computeKPIs, computeMonthlyData } from "@/lib/financial-utils";
+import {
+  computeKPIs,
+  computeMonthlyData,
+  formatPeriodLabel,
+} from "@/lib/financial-utils";
 
 // Recharts is the bulk of the bundle: load the charts in their own chunk.
 const IncomeOutcomeChart = lazy(() =>
@@ -58,7 +62,7 @@ function App() {
     <main className="dark min-h-screen bg-background text-foreground">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-8">
-          <DashboardHeader period="2024 - Full Year" />
+          <DashboardHeader period={formatPeriodLabel(monthlyData)} />
 
           {error ? (
             <div

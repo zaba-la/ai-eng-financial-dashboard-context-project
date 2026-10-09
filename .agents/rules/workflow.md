@@ -5,7 +5,7 @@ Applies to every task in this repo.
 ## Before starting
 
 1. Read `AGENTS.md`, every file in `.agents/rules/`, and `memory-bank/activeContext.md` + `memory-bank/progress.md`.
-   Load the skill in `.agents/skills/` that matches the task (`accessibility`, `vercel-react-best-practices`, `fastapi`, `financial-data-formatting`). Third-party skills are pinned in `skills-lock.json`; add new ones with `npx skills add <owner/repo> -s <skill> -a claude-code`.
+   Load the skill in `.agents/skills/` that matches the task (internal skills live in `.skills/` and are symlinked there) (`accessibility`, `vercel-react-best-practices`, `fastapi`, `financial-data-formatting`). Third-party skills are pinned in `skills-lock.json`; add new ones with `npx skills add <owner/repo> -s <skill> -a claude-code`.
 2. Check `git status`. Work on a feature branch (`feature/<topic>`), never directly on `main`.
 
 ## Running the app

@@ -51,7 +51,7 @@ src/
 ## Dates
 
 - API dates are timezone-less `YYYY-MM-DD` strings. Never `new Date("YYYY-MM-DD")` + local getters: it parses as UTC midnight and shifts the 1st into the previous month in the Americas. Use string slicing (`create_date.slice(0, 7)`).
-- Any change to money, percent, date or period formatting must follow `.agents/skills/financial-data-formatting/SKILL.md`, including its acceptance checks (tests under `TZ=America/Mexico_City`).
+- Any change to money, percent, date or period formatting must follow `.skills/financial-data-formatting/SKILL.md`, including its acceptance checks (tests under `TZ=America/Mexico_City`).
 
 ## Tests
 

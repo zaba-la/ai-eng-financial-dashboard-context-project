@@ -4,7 +4,7 @@ _Last updated: 2026-10-09_
 
 ## Current focus
 
-Branch `feature/agent-skills`: course exercise "apply agent skills". Done locally, not pushed yet:
+Branch `feature/agent-skills`: course exercise "apply agent skills". Pushed, PR open: https://github.com/zaba-la/ai-eng-financial-dashboard-context-project/pull/1
 
 1. Discovered and installed `accessibility` + `vercel-react-best-practices`.
 2. Applied both (agent-led, verified).
@@ -20,7 +20,7 @@ Details and the rationale per skill are in `progress.md` → Agent skills.
 
 ## Open decisions / next steps
 
-- Push the branch and open a PR to `main` on the fork.
-- Course asks to save the internal skill under `.skills/`, while this repo's README/AGENTS.md define `.agents/skills/`. The repo convention was used. Confirm with the instructor.
+- Review and merge PR #1 (no CI on the repo; all checks were run locally).
+- The internal skill lives in `.skills/` (course rubric) and is symlinked into `.agents/skills/` (repo convention). `AGENTS.md` documents both.
 - Candidate internal skills next: "add backend endpoint + test", "pre-merge QA".
 - Remove dead code (`mock-data.ts`, `hero.png`)?

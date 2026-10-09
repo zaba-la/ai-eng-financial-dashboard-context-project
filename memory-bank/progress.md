@@ -9,14 +9,14 @@
 
 ## Agent skills (branch `feature/agent-skills`, 2026-10-09)
 
-Installed with `npx skills add` into `.agents/skills/` (`.claude/skills` is a symlink to it). Versions pinned in `skills-lock.json`.
+Community skills were installed with `npx skills add` into `.agents/skills/` (`.claude/skills` is a symlink to it), with versions pinned in `skills-lock.json`. The internal skill lives in `.skills/financial-data-formatting/` (course requirement) and is symlinked into `.agents/skills/` (repo convention from `AGENTS.md`).
 
 | Skill | Source | Type | Commit |
 | ----- | ------ | ---- | ------ |
 | `accessibility` | `addyosmani/web-quality-skills` | community (required) | `18483d6` |
 | `vercel-react-best-practices` | `vercel-labs/agent-skills` | community (required) | `babd106` |
 | `fastapi` | `fastapi/fastapi` | ecosystem (own choice) | `29b4efc` |
-| `financial-data-formatting` | this repo | internal | `12bd54f` |
+| `financial-data-formatting` | this repo (`.skills/`) | internal | `12bd54f` |
 
 ### Verified changes per skill
 

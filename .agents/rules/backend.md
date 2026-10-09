@@ -25,9 +25,12 @@ Everything domain-related lives in `app/routes.py`, ordered as: type aliases →
 ## Conventions
 
 - Domain enums are `Literal` aliases (`OperationType`, `Category`, `BusinessType`, `GroupBy`). Reuse them in models and query params so FastAPI validates input (invalid value → 422).
-- Every endpoint declares `response_model=` and a return type annotation.
-- Query params use `Query(default=...)`. Required ones use `Query(...)`. Bounds go in `Query` (`ge`, `le`), e.g. `limit: int = Query(default=5, ge=1, le=20)`.
-- Business logic goes in **pure helper functions** that take `list[FinancialMovement]` and return data (`filter_movements`, `summarize_movements`, `build_top_categories`, `calculate_net_value`, `detect_outcome_alerts`). Endpoints only compose: generate → filter (`business_type`, then `filter_movements`) → helper → return.
+- Follow the installed `fastapi` skill (`.agents/skills/fastapi/SKILL.md`). In this repo that means:
+  - Every endpoint declares a **return type** (`-> list[FinancialMovement]`). That return type is the response model. Add `response_model=` only when the public schema differs from what the function returns.
+  - Query params use `Annotated[...]` with the default as the plain default value. Reuse the module-level aliases (`StartDateQuery`, `EndDateQuery`, `CategoryQuery`, `OperationTypeQuery`, `BusinessTypeQuery`, `GroupByQuery`). Bounds go inside `Query`: `limit: Annotated[int, Query(ge=1, le=20)] = 5`.
+  - Required params have no default: `start_date: Annotated[date, Query()]`. Never use `...` (Ellipsis).
+  - Endpoints stay sync `def` (no awaitable work inside).
+- Business logic goes in **pure helper functions** that take `list[FinancialMovement]` and return data (`filter_by_business_type`, `filter_movements`, `summarize_movements`, `build_top_categories`, `calculate_net_value`, `detect_outcome_alerts`). Endpoints only compose: generate → `filter_by_business_type` → `filter_movements` → helper → return.
 - Money is rounded with `round(x, 2)` at the output boundary. Ratios use `round(x, 4)` and percents `round(x, 2)`.
 - Field names are `snake_case`. All public routes are under `/api/metrics...`, except `/health`.
 - `from __future__ import annotations` at the top. Use `X | None` unions, built-in generics (`list[...]`, `dict[...]`).

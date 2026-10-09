@@ -4,13 +4,23 @@ _Last updated: 2026-10-09_
 
 ## Current focus
 
-Branch `feature/agent-skills`. Next step of the course: create agent skills under `.agents/skills/<skill-name>/SKILL.md`.
+Branch `feature/agent-skills`: course exercise "apply agent skills". Done locally, not pushed yet:
+
+1. Discovered and installed `accessibility` + `vercel-react-best-practices`.
+2. Applied both (agent-led, verified).
+3. Explored the ecosystem (`testing`, `typescript`, `fastapi`, `vitest`) and applied `fastapi`.
+4. Authored the internal skill `financial-data-formatting` and validated it on the timezone and period-label bugs.
+
+Details and the rationale per skill are in `progress.md` → Agent skills.
 
 ## Recent changes
 
-- 2026-10-09: generated `.agents/rules/` (workflow, frontend, backend, api-contract) and this `memory-bank/` from code inspection. Baseline verified at the same time: frontend build, lint and 5 Vitest tests pass; backend 15 pytest tests pass.
+- 2026-10-09: rules + memory bank generated from the code (`57d527c`).
+- 2026-10-09: skills installed and applied (`f6e1560`, `18483d6`, `babd106`, `29b4efc`, `12bd54f`).
 
 ## Open decisions / next steps
 
-- Decide which skills to add (candidates: "add backend endpoint + test", "add dashboard chart/KPI card", "run validation suite").
-- Header period badge is hardcoded (`"2024 - Full Year"`) while data covers the last 12 months. Fix or leave it? (see `progress.md`)
+- Push the branch and open a PR to `main` on the fork.
+- Course asks to save the internal skill under `.skills/`, while this repo's README/AGENTS.md define `.agents/skills/`. The repo convention was used. Confirm with the instructor.
+- Candidate internal skills next: "add backend endpoint + test", "pre-merge QA".
+- Remove dead code (`mock-data.ts`, `hero.png`)?

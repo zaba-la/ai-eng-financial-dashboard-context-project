@@ -11,7 +11,7 @@ src/
 ├─ index.css                   # Tailwind import + design tokens (CSS variables)
 ├─ components/
 │  ├─ ui/                      # shadcn primitives (card, skeleton). Generic, no domain logic.
-│  └─ dashboard/               # domain components (kpi-card, kpi-row, charts, header)
+│  └─ dashboard/               # domain components (kpi-card, kpi-row, charts, chart-card-skeleton, header)
 └─ lib/
    ├─ financial-types.ts       # domain types mirroring the backend models
    ├─ financial-utils.ts       # pure calculations + formatters
@@ -42,13 +42,16 @@ src/
 
 ## Component patterns (follow existing ones)
 
+- Accessibility and React performance follow the installed skills `.agents/skills/accessibility` and `.agents/skills/vercel-react-best-practices`. In this repo: section/card titles are `h2`; charts pass `title` + `desc` to the Recharts chart; error banners use `role="alert"`; heavy chart components load with `React.lazy` + `Suspense` and a `ChartCardSkeleton` fallback; derive values from state during render instead of storing them.
+
 - Every data component handles three states: **loading** (render `Skeleton` blocks with the same footprint), **empty** ("No data available to display"), **data**.
 - Charts: wrap in `Card` → `CardHeader` (title + description) → `CardContent` → `ResponsiveContainer height={280}`. Axis ticks use `var(--color-muted-foreground)`, grid uses `var(--color-border)`. Custom tooltips are local `CustomTooltip` components.
-- Data fetching lives in `App.tsx` (`fetch` + `useEffect`, no data library). Base URL: `import.meta.env.VITE_API_BASE_URL ?? ""` + `/api/...`. Fetch errors set a user-facing message (currently in Spanish) and the page keeps rendering.
+- Data fetching lives in `App.tsx` (`fetch` + `useEffect`, no data library). Only the raw `movements` are kept in state. Base URL: `import.meta.env.VITE_API_BASE_URL ?? ""` + `/api/...`. Fetch errors set a user-facing message (currently in Spanish) and the page keeps rendering.
 
 ## Dates
 
-- API dates are `YYYY-MM-DD` strings. `new Date("YYYY-MM-DD")` parses as **UTC midnight**, so reading it with local getters (`getMonth()`) shifts the 1st of the month into the previous month in negative-offset timezones (the Americas). For new code, parse the string parts (`split("-")`) or use UTC getters. See `memory-bank/progress.md` → Known issues.
+- API dates are timezone-less `YYYY-MM-DD` strings. Never `new Date("YYYY-MM-DD")` + local getters: it parses as UTC midnight and shifts the 1st into the previous month in the Americas. Use string slicing (`create_date.slice(0, 7)`).
+- Any change to money, percent, date or period formatting must follow `.agents/skills/financial-data-formatting/SKILL.md`, including its acceptance checks (tests under `TZ=America/Mexico_City`).
 
 ## Tests
 

@@ -5,6 +5,7 @@ Applies to every task in this repo.
 ## Before starting
 
 1. Read `AGENTS.md`, every file in `.agents/rules/`, and `memory-bank/activeContext.md` + `memory-bank/progress.md`.
+   Load the skill in `.agents/skills/` that matches the task (`accessibility`, `vercel-react-best-practices`, `fastapi`, `financial-data-formatting`). Third-party skills are pinned in `skills-lock.json`; add new ones with `npx skills add <owner/repo> -s <skill> -a claude-code`.
 2. Check `git status`. Work on a feature branch (`feature/<topic>`), never directly on `main`.
 
 ## Running the app
@@ -37,7 +38,9 @@ With the stack up, run from the repo root:
 | Frontend tests     | `docker compose exec frontend npm test`              | Vitest (`*.test.ts` next to source)    |
 | Backend tests      | `docker compose exec backend pytest -q`              | pytest + FastAPI `TestClient`          |
 
-Known, accepted output: the build warns that the main chunk is > 500 kB (Recharts). Not a failure.
+The build must finish with **no warnings**. Charts are code-split, so a new > 500 kB chunk warning is a regression.
+
+If the frontend container exits with `ENOENT` after a file save, restart it with `docker compose start frontend`.
 
 ## Definition of done
 
@@ -50,5 +53,6 @@ A change is done only when:
 
 ## Git
 
+- When a change comes from a skill, name the skill and the rule in the commit body.
 - Small, focused commits with conventional prefixes (`feat:`, `fix:`, `docs:`, `test:`, `refactor:`, `chore:`), matching existing history.
 - Never commit `.env`, `frontend/dist/`, `node_modules/`, caches (all in `.gitignore`).
